@@ -255,6 +255,18 @@ class SSL_Dataset:
             data, targets = dset_lb.data.transpose([0, 2, 3, 1]), dset_lb.labels.astype(np.int64)
             ulb_data = dset_ulb.data.transpose([0, 2, 3, 1])
             return data, targets, ulb_data
+        elif self.name.upper() == "MYDATASET":
+            data,targets = [],[]
+            with open(self.data_dir) as f:
+                lines = f.readlines().strip("\n")
+                for line in lines:
+                    path,label = line.split(" ")
+                    data.append(Image.open(path))
+                    targets.append(label)
+            data = data.transpose([0,2,3,1])
+            return data,targets
+
+                        
 
     def get_dset(self, is_ulb=False,
                  strong_transform=None, onehot=False):
@@ -306,6 +318,7 @@ class SSL_Dataset:
                 ulb_data = np.concatenate([ulb_data, lb_data], axis=0)
             lb_data, lb_targets, _ = sample_labeled_data(self.args, lb_data, lb_targets, num_labels, self.num_classes)
             ulb_targets = None
+
         else:
             data, targets = self.get_data()
             lb_data, lb_targets, ulb_data, ulb_targets = split_ssl_data(self.args, data, targets,
