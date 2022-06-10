@@ -16,7 +16,7 @@ from torch.utils.data import sampler, DataLoader
 from torch.utils.data.sampler import BatchSampler
 import torch.distributed as dist
 from datasets.DistributedProxySampler import DistributedProxySampler
-
+import cv2
 import gc
 import sys
 import copy
@@ -216,7 +216,7 @@ class SSL_Dataset:
         self.train = train
         self.num_classes = num_classes
         self.data_dir = data_dir
-        crop_size = 96 if self.name.upper() == 'STL10' else 224 if self.name.upper() == 'IMAGENET' else 32
+        crop_size = 96 if self.name.upper() == 'STL10' else 224 if self.name.upper() == 'IMAGENET' else 224 if self.name.upper() == "MYDATASET" else 32
         self.transform = get_transform(mean[name], std[name], crop_size, train)
 
     def get_data(self, svhn_extra=True):
@@ -261,7 +261,7 @@ class SSL_Dataset:
                 lines = f.readlines().strip("\n")
                 for line in lines:
                     path,label = line.split(" ")
-                    data.append(Image.open(path))
+                    data.append(cv2.imread(path))
                     targets.append(label)
             data = data.transpose([0,2,3,1])
             return data,targets
